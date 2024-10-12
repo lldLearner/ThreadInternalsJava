@@ -17,15 +17,22 @@ public class BankAccount {
 	// versa is also possible
 	public synchronized void depositMoney(int amount) throws InterruptedException {
 		// TODO Auto-generated method stub
-		//Sleep doesn't releases lock
-		Thread.sleep(100000);
+		// Sleep doesn't releases lock
+
 		this.amount = this.amount + amount;
 		System.out.println(this.amount + " has been present in yourr bank account after depsot of " + amount);
+		notify();// It notifies the waited thread, now lets say two threads are waiting for the
+					// same object which one will it notify depends upon the opcon scheculer
+		//notifyAll(); //It notifies all the wiaitng thread of same object
 	}
 
-	public synchronized void withdrawMoney(int amount) {
+	public synchronized void withdrawMoney(int amount) throws InterruptedException {
 		// TODO Auto-generated method stub
 
+		if (amount > this.amount) {
+			wait();// it waits and release the lock, the waiting is indefinite until its notified,
+					// plus its Object class unlike Thread.sleep() that is thread class level
+		}
 		this.amount = this.amount - amount;
 		System.out.println(this.amount + " has been left in yourr bank account after withdrawal of " + amount);
 	}
@@ -34,8 +41,13 @@ public class BankAccount {
 		BankAccount kartikAccount = new BankAccount(5000);
 		BankAccount kaivalyaBankAccount = new BankAccount(500000);
 		Thread atmThread = new Thread(() -> {
-			kartikAccount.withdrawMoney(2000);
-		});
+			try {
+				kartikAccount.withdrawMoney(6000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}, "kartik withdrawal");
 
 		Thread googlePayThread = new Thread(() -> {
 			try {
@@ -44,7 +56,7 @@ public class BankAccount {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}, "kartik account");
+		}, "kartik deposit");
 
 		Thread atmThread1 = new Thread(() -> {
 			try {
