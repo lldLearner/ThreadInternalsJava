@@ -9,13 +9,13 @@ public class BankAccount {
 		this.amount = amount;
 	}
 	
-	public void depositMoney(int amount) {
+	public synchronized void depositMoney(int amount) {
 		// TODO Auto-generated method stub
 		this.amount = this.amount + amount;
 		System.out.println(this.amount + " has been present in yourr bank account after depsot of " + amount);
 	}
 	
-	public void withdrawMoney(int amount) {
+	public synchronized void withdrawMoney(int amount) {
 		// TODO Auto-generated method stub
 
 		this.amount = this.amount - amount;
@@ -31,10 +31,17 @@ public class BankAccount {
 		
 		Thread googlePayThread = new Thread(() -> {
 			kartikAccount.depositMoney(5000);
-		});
+		}, "kartik account");
+		
+		Thread atmThread1 = new Thread(() -> {
+			kaivalyaBankAccount.depositMoney(5000);
+		}, "kv account");
 		/*
-		 * Output should be 3000 left after withdrawal
+		 * Output can be 3000 left after withdrawal
 		 * 8000 left after deposit
+		 * 
+		 * 10000 left after deposit
+		 * 8000 left after withdrawal
 		 * 
 		 * Got the output in one scenario
 		 * 3000 has been left in yourr bank account after withdrawal of 2000
@@ -43,6 +50,7 @@ public class BankAccount {
 		 * Clear cut need of synchronization here as amount for kartik account is being accessed by both the threads simultaneously
 		 */
 		atmThread.start();
+		atmThread1.start();
 		googlePayThread.start();
 	}
 }
